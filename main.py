@@ -43,6 +43,7 @@ def merge_gold_data(historical_data, live_data):
 def fetch_news_sentiment(ticker):
     try:
         news = yf.Ticker(ticker).news
+        nltk.download('vader_lexicon')
         sia = SentimentIntensityAnalyzer()
         sentiments = []
         for article in news:
