@@ -102,6 +102,47 @@ def plot_prices(data, model):
     except Exception as e:
         print(f"Failed to plot prices: {e}")
 
+def load_historical_silver_data(ticker):
+    try:
+        data = yf.download(ticker, period='10y')
+        data.reset_index(inplace=True)
+        data['Date'] = pd.to_datetime(data['Date'])
+        return data
+    except Exception as e:
+        print(f"Failed to load historical silver data: {e}")
+        return None
+
+def train_silver_forecasting_model(data):
+    try:
+        data['Date'] = pd.to_datetime(data['Date'])
+        data['Date'] = data['Date'].apply(lambda date: date.timestamp())
+        X = data[['Date']]
+        y = data['Close']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        model = RandomForestRegressor()
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        print(f"Silver Model MSE: {mean_squared_error(y_test, y_pred)}")
+        return model
+    except Exception as e:
+        print(f"Failed to train silver forecasting model: {e}")
+        return None
+
+def plot_silver_prices(data, model):
+    try:
+        data['Date'] = pd.to_datetime(data['Date'])
+        data['Date'] = data['Date'].apply(lambda date: date.timestamp())
+        future_dates = np.array([data['Date'].max() + i * 86400 for i in range(1, 365*4)])  # Predict for the next 4 years
+        future_dates_df = pd.DataFrame(future_dates, columns=['Date'])
+        predicted_prices = model.predict(future_dates_df)
+        plt.figure(figsize=(10, 6))
+        plt.plot(data['Date'], data['Close'], label='Historical Silver Prices')
+        plt.plot(future_dates, predicted_prices, label='Predicted Silver Prices')
+        plt.legend()
+        plt.show()
+    except Exception as e:
+        print(f"Failed to plot silver prices: {e}")
+
 if __name__ == "__main__":
     historical_data = load_historical_gold_data('BSE-BOM590111.csv')
     live_data = fetch_live_gold_data('GC=F')
@@ -112,3 +153,6 @@ if __name__ == "__main__":
     signal = generate_signal(model, merged_data)
     print(f"Signal: {signal}")
     plot_prices(merged_data, model)
+    silver_data = load_historical_silver_data('SI=F')
+    silver_model = train_silver_forecasting_model(silver_data)
+    plot_silver_prices(silver_data, silver_model)
