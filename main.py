@@ -4,6 +4,7 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
+import nltk
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
@@ -13,6 +14,9 @@ import numpy as np
 def load_historical_gold_data(file_path):
     try:
         data = pd.read_csv(file_path)
+        if 'Date' not in data.columns or 'Close' not in data.columns:
+            print("CSV file is missing 'Date' or 'Close' column.")
+            return None
         data['Date'] = pd.to_datetime(data['Date'])
         return data
     except Exception as e:
@@ -42,6 +46,7 @@ def merge_gold_data(historical_data, live_data):
 
 def fetch_news_sentiment(ticker):
     try:
+        nltk.download('vader_lexicon')
         news = yf.Ticker(ticker).news
         sia = SentimentIntensityAnalyzer()
         sentiments = []
