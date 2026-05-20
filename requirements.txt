@@ -1,0 +1,14 @@
+torch
+transformers
+yfinance
+nltk
+scikit-learn
+matplotlib
+pandas
+torch
+transformers
+yfinance
+nltk
+scikit-learn
+matplotlib
+pandas
