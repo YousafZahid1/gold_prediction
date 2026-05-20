@@ -1,6 +1,8 @@
 import pandas as pd
 import yfinance as yf
 import nltk
+nltk.download('vader_lexicon')
+nltk.download('vader_lexicon')
 from nltk.sentiment import SentimentIntensityAnalyzer
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
